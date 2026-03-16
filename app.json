@@ -28,6 +28,24 @@
     "plugins": [
       "expo-router",
       [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Este app usa sua localização para exibir o clima da sua região.",
+          "locationWhenInUsePermission": "Este app usa sua localização para exibir o clima da sua região."
+        }
+      ],
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./assets/fonts/SF-Pro-Rounded-Regular.otf",
+            "./assets/fonts/SF-Pro-Rounded-Medium.otf",
+            "./assets/fonts/SF-Pro-Rounded-Semibold.otf",
+            "./assets/fonts/SF-Pro-Rounded-Bold.otf"
+          ]
+        }
+      ],
+      [
         "expo-splash-screen",
         {
           "image": "./assets/images/splash-icon.png",
