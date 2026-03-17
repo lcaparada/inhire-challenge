@@ -1,50 +1,24 @@
-# Welcome to your Expo app 👋
+# Weather App — Inhire Challenge
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Aplicativo mobile de previsão do tempo desenvolvido como parte do processo seletivo.
 
-## Get started
+---
 
-1. Install dependencies
+## Sobre o projeto
 
-   ```bash
-   npm install
-   ```
+O app permite que o usuário veja as condições climáticas atuais e a previsão dos próximos dias com base na sua localização ou em qualquer cidade do mundo que ele queira pesquisar.
 
-2. Start the app
+A ideia foi construir algo próximo de um produto real: visual bem acabado, experiência fluida e código organizado como em um time de desenvolvimento.
 
-   ```bash
-   npx expo start
-   ```
+---
 
-In the output, you'll find options to open the app in a
+## O que o app faz
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- **Clima atual** — temperatura, sensação térmica, umidade, vento, pressão, visibilidade e índice UV
+- **Qualidade do ar** — nível de AQI com classificação (Boa, Regular, Moderada, Ruim, Péssima) e valores de PM2.5 e NO₂
+- **Previsão horária** — próximas 8 horas com ícone, temperatura e chance de chuva
+- **Previsão dos próximos 7 dias** — temperatura máxima e mínima por dia
+- **Gradiente dinâmico** — o fundo do app muda de cor de acordo com o clima (céu claro, nublado, chuva, neve, etc.) e se é dia ou noite
+- **Busca por cidade** — pesquisa qualquer cidade do mundo pelo nome
+- **Múltiplas cidades** — salva cidades favoritas e alterna entre elas via drawer lateral
+- **Localização por GPS** — usa a localização real do dispositivo como padrão
