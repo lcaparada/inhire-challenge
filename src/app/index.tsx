@@ -10,7 +10,14 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, ScrollView, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Box, CitiesDrawer, HourlyItem, StatCard, Text } from "../components";
+import {
+  Box,
+  CitiesDrawer,
+  DailyItem,
+  HourlyItem,
+  StatCard,
+  Text,
+} from "../components";
 import { useCustomCity } from "../context/location.context";
 import { useLocation, useWeatherByCoords } from "../hooks";
 
@@ -32,6 +39,19 @@ function formatDate(dt: number, timezone: number): string {
   });
 }
 
+function getUviLabel(uvi: number): string {
+  if (uvi <= 2) return "Baixo";
+  if (uvi <= 5) return "Moderado";
+  if (uvi <= 7) return "Alto";
+  if (uvi <= 10) return "Muito alto";
+  return "Extremo";
+}
+
+function formatVisibility(meters: number): string {
+  if (meters >= 1000) return `${(meters / 1000).toFixed(0)} km`;
+  return `${meters} m`;
+}
+
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const location = useLocation();
@@ -44,18 +64,13 @@ export default function HomeScreen() {
     activeCity?.coords.longitude ?? location.coords?.longitude ?? 0;
   const weather = useWeatherByCoords(activeLat, activeLon);
 
-  const current = weather.current;
+  const oneCall = weather.data;
+  const cw = oneCall?.current;
   const isLoading = (activeCity ? false : location.loading) || weather.loading;
   const error = (activeCity ? null : location.error) ?? weather.error;
 
-  const weatherId = current?.current.weather[0]?.id ?? 800;
-  const day = current
-    ? isDayTime(
-        current.current.dt,
-        current.current.sunrise,
-        current.current.sunset,
-      )
-    : true;
+  const weatherId = cw?.weather[0]?.id ?? 800;
+  const day = cw ? isDayTime(cw.dt, cw.sunrise, cw.sunset) : true;
   const gradient = getWeatherGradient(weatherId, day);
   const [gradientStart, gradientEnd] = gradient;
 
@@ -63,9 +78,11 @@ export default function HomeScreen() {
     setWeatherGradient([gradientStart, gradientEnd]);
   }, [gradientStart, gradientEnd, setWeatherGradient]);
 
-  const hourly = current?.hourly.slice(0, 8) ?? [];
+  const hourly = oneCall?.hourly.slice(0, 8) ?? [];
+  const daily = oneCall?.daily ?? [];
+  const todayDaily = daily[0];
+  const forecastDays = daily.slice(0, 7);
   const aqi = weather.airQuality?.list[0];
-  const todayDaily = weather.forecast?.daily[0];
 
   return (
     <LinearGradient colors={gradient} style={{ flex: 1 }}>
@@ -130,8 +147,9 @@ export default function HomeScreen() {
           </Box>
         )}
 
-        {current && !isLoading && (
+        {cw && oneCall && !isLoading && (
           <>
+            {/* Header */}
             <Box alignItems="center" marginBottom="s8">
               <Box
                 flexDirection="row"
@@ -146,28 +164,24 @@ export default function HomeScreen() {
                     : `${location.cityName ?? ""}${location.countryCode ? `, ${location.countryCode}` : ""}`}
                 </Text>
                 <TouchableOpacity onPress={() => setDrawerOpen(true)}>
-                  <Text preset="displayLarge" color="textSecondary">
+                  <Text preset="paragraphsBig" color="textSecondary">
                     ☰
                   </Text>
                 </TouchableOpacity>
               </Box>
-
               <Text
                 preset="notes"
                 color="textSecondary"
                 style={{ textTransform: "capitalize", marginTop: 2 }}
               >
-                {formatDate(current.current.dt, current.timezone_offset)}
+                {formatDate(cw.dt, oneCall.timezone_offset)}
               </Text>
             </Box>
 
+            {/* Main weather */}
             <Box alignItems="center" paddingVertical="s12">
               <Image
-                source={{
-                  uri: weatherIconUrl(
-                    current.current.weather[0]?.icon ?? "01d",
-                  ),
-                }}
+                source={{ uri: weatherIconUrl(cw.weather[0]?.icon ?? "01d") }}
                 style={{ width: 110, height: 110 }}
                 contentFit="contain"
               />
@@ -175,14 +189,14 @@ export default function HomeScreen() {
                 weight="regular"
                 style={{ fontSize: 80, lineHeight: 88, fontWeight: "200" }}
               >
-                {Math.round(current.current.temp)}°C
+                {Math.round(cw.temp)}°C
               </Text>
               <Text
                 preset="default"
                 color="textSecondary"
                 style={{ textTransform: "capitalize", marginTop: 4 }}
               >
-                {current.current.weather[0]?.description}
+                {cw.weather[0]?.description}
               </Text>
               <Text
                 preset="paragraphs"
@@ -194,24 +208,45 @@ export default function HomeScreen() {
               </Text>
             </Box>
 
-            <Box flexDirection="row" marginVertical="s16" style={{ gap: 10 }}>
+            {/* Stats row 1 */}
+            <Box flexDirection="row" marginBottom="s10" style={{ gap: 10 }}>
               <StatCard
                 icon="💧"
                 label="Umidade"
-                value={`${current.current.humidity}%`}
+                value={`${cw.humidity}%`}
               />
               <StatCard
                 icon="💨"
                 label="Vento"
-                value={`${Math.round(current.current.wind_speed * 3.6)} km/h`}
+                value={`${Math.round(cw.wind_speed * 3.6)} km/h`}
               />
               <StatCard
                 icon="🌡️"
                 label="Sensação"
-                value={`${Math.round(current.current.feels_like)}°`}
+                value={`${Math.round(cw.feels_like)}°`}
               />
             </Box>
 
+            {/* Stats row 2 */}
+            <Box flexDirection="row" marginBottom="s16" style={{ gap: 10 }}>
+              <StatCard
+                icon="☀️"
+                label="UV"
+                value={`${Math.round(cw.uvi)} · ${getUviLabel(cw.uvi)}`}
+              />
+              <StatCard
+                icon="👁️"
+                label="Visibilidade"
+                value={formatVisibility(cw.visibility)}
+              />
+              <StatCard
+                icon="🔵"
+                label="Pressão"
+                value={`${cw.pressure} hPa`}
+              />
+            </Box>
+
+            {/* Hourly forecast */}
             {hourly.length > 0 && (
               <Box marginBottom="s16">
                 <Text
@@ -238,6 +273,44 @@ export default function HomeScreen() {
               </Box>
             )}
 
+            {/* 7-day forecast */}
+            {forecastDays.length > 0 && (
+              <Box
+                backgroundColor="cardBackground"
+                borderColor="cardBorder"
+                borderWidth={1}
+                borderRadius="s16"
+                padding="s16"
+                marginBottom="s12"
+              >
+                <Text
+                  preset="paragraphsBig"
+                  weight="semiBold"
+                  marginBottom="s4"
+                >
+                  Próximos dias
+                </Text>
+                {forecastDays.map((item, index) => (
+                  <Box key={item.dt}>
+                    {index > 0 && (
+                      <Box
+                        style={{
+                          height: 1,
+                          backgroundColor: theme.colors.cardBorder,
+                        }}
+                      />
+                    )}
+                    <DailyItem
+                      item={item}
+                      timezoneOffset={oneCall.timezone_offset}
+                      isToday={index === 0}
+                    />
+                  </Box>
+                ))}
+              </Box>
+            )}
+
+            {/* Air quality */}
             {aqi && (
               <Box
                 backgroundColor="cardBackground"
@@ -277,6 +350,7 @@ export default function HomeScreen() {
               </Box>
             )}
 
+            {/* Sunrise / Sunset */}
             <Box flexDirection="row" style={{ gap: 10 }}>
               <Box
                 flex={1}
@@ -291,10 +365,10 @@ export default function HomeScreen() {
                   🌅 Nascer do sol
                 </Text>
                 <Text preset="titleSmall" weight="semiBold">
-                  {new Date(current.current.sunrise * 1000).toLocaleTimeString(
-                    "pt-BR",
-                    { hour: "2-digit", minute: "2-digit" },
-                  )}
+                  {new Date(cw.sunrise * 1000).toLocaleTimeString("pt-BR", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </Text>
               </Box>
               <Box
@@ -310,10 +384,10 @@ export default function HomeScreen() {
                   🌇 Pôr do sol
                 </Text>
                 <Text preset="titleSmall" weight="semiBold">
-                  {new Date(current.current.sunset * 1000).toLocaleTimeString(
-                    "pt-BR",
-                    { hour: "2-digit", minute: "2-digit" },
-                  )}
+                  {new Date(cw.sunset * 1000).toLocaleTimeString("pt-BR", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </Text>
               </Box>
             </Box>

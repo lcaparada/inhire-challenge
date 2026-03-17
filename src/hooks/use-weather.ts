@@ -1,29 +1,22 @@
 import { useCallback } from "react";
 
-import {
-  useGetAirQuality,
-  useGetCurrentByCoords,
-  useGetForecastByCoords,
-} from "../domain";
+import { useGetAirQuality, useGetForecastByCoords } from "../domain";
 
 export function useWeatherByCoords(lat: number, lon: number) {
-  const current = useGetCurrentByCoords({ lat, lon });
-  const forecast = useGetForecastByCoords({ lat, lon });
-  const airQuality = useGetAirQuality({ lat, lon });
+  const forecastQuery = useGetForecastByCoords({ lat, lon });
+  const airQualityQuery = useGetAirQuality({ lat, lon });
 
   const refresh = useCallback(() => {
-    current.refetch();
-    forecast.refetch();
-    airQuality.refetch();
-  }, [current.refetch, forecast.refetch, airQuality.refetch]);
+    forecastQuery.refetch();
+    airQualityQuery.refetch();
+  }, [forecastQuery, airQualityQuery]);
 
   return {
-    current: current.data ?? null,
-    forecast: forecast.data ?? null,
-    airQuality: airQuality.data ?? null,
-    loading: current.isLoading || forecast.isLoading || airQuality.isLoading,
+    data: forecastQuery.data ?? null,
+    airQuality: airQualityQuery.data ?? null,
+    loading: forecastQuery.isLoading || airQualityQuery.isLoading,
     error:
-      (current.error ?? forecast.error ?? airQuality.error)?.message ?? null,
+      (forecastQuery.error ?? airQualityQuery.error)?.message ?? null,
     refresh,
   };
 }
