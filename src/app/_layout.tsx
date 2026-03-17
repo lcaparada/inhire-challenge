@@ -7,7 +7,7 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import "react-native-reanimated";
 
-import { LocationProvider } from "@/src/context/LocationContext";
+import { LocationProvider } from "@/src/context/location.context";
 import { theme } from "@/src/theme";
 
 SplashScreen.preventAutoHideAsync();

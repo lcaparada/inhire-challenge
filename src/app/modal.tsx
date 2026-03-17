@@ -4,7 +4,7 @@ import { TextInput, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Box, Button, Text } from "@/src/components";
-import { useCustomCity } from "@/src/context/LocationContext";
+import { useCustomCity } from "@/src/context/location.context";
 import { weatherService } from "@/src/domain/weather/weather.service";
 import { theme } from "@/src/theme";
 

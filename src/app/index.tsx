@@ -11,7 +11,7 @@ import { router } from "expo-router";
 import { ActivityIndicator, ScrollView, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Box, HourlyItem, StatCard, Text } from "../components";
-import { useCustomCity } from "../context/LocationContext";
+import { useCustomCity } from "../context/location.context";
 import { useLocation, useWeatherByCoords } from "../hooks";
 
 const AQI_INFO: Record<number, { label: string; color: string }> = {
@@ -317,7 +317,6 @@ export default function HomeScreen() {
           </>
         )}
       </ScrollView>
-
     </LinearGradient>
   );
 }
