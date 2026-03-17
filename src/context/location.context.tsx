@@ -17,27 +17,67 @@ const DEFAULT_GRADIENT: GradientPair = [
 ];
 
 type ContextValue = {
-  customCity: CityLocation | null;
-  setCustomCity: (city: CityLocation | null) => void;
+  savedCities: CityLocation[];
+  activeCity: CityLocation | null; // null = GPS
+  addCity: (city: CityLocation) => void;
+  removeCity: (index: number) => void;
+  selectCity: (city: CityLocation | null) => void;
   weatherGradient: GradientPair;
   setWeatherGradient: (gradient: GradientPair) => void;
 };
 
 const LocationContext = createContext<ContextValue>({
-  customCity: null,
-  setCustomCity: () => {},
+  savedCities: [],
+  activeCity: null,
+  addCity: () => {},
+  removeCity: () => {},
+  selectCity: () => {},
   weatherGradient: DEFAULT_GRADIENT,
   setWeatherGradient: () => {},
 });
 
 export function LocationProvider({ children }: { children: React.ReactNode }) {
-  const [customCity, setCustomCity] = useState<CityLocation | null>(null);
+  const [savedCities, setSavedCities] = useState<CityLocation[]>([]);
+  const [activeCity, setActiveCity] = useState<CityLocation | null>(null);
   const [weatherGradient, setWeatherGradient] =
     useState<GradientPair>(DEFAULT_GRADIENT);
 
+  function addCity(city: CityLocation) {
+    setSavedCities((prev) => {
+      const alreadyExists = prev.some(
+        (c) => c.name === city.name && c.country === city.country,
+      );
+      return alreadyExists ? prev : [...prev, city];
+    });
+    setActiveCity(city);
+  }
+
+  function removeCity(index: number) {
+    setSavedCities((prev) => {
+      const next = prev.filter((_, i) => i !== index);
+      return next;
+    });
+    setActiveCity((prev) => {
+      if (prev && savedCities[index]?.name === prev.name) return null;
+      return prev;
+    });
+  }
+
+  function selectCity(city: CityLocation | null) {
+    setActiveCity(city);
+  }
+
   return (
     <LocationContext.Provider
-      value={{ customCity, setCustomCity, weatherGradient, setWeatherGradient }}
+      value={{
+        savedCities,
+        activeCity,
+        addCity,
+        removeCity,
+        selectCity,
+        weatherGradient,
+        setWeatherGradient,
+      }}
     >
       {children}
     </LocationContext.Provider>

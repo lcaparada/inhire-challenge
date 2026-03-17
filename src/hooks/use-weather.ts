@@ -1,16 +1,21 @@
-import type { Coords } from "@/src/types";
+import { useCallback } from "react";
+
 import {
   useGetAirQuality,
   useGetCurrentByCoords,
   useGetForecastByCoords,
 } from "../domain";
 
-export function useWeatherByCoords(coords: Coords | null) {
-  const lat = coords?.latitude ?? 0;
-  const lon = coords?.longitude ?? 0;
+export function useWeatherByCoords(lat: number, lon: number) {
   const current = useGetCurrentByCoords({ lat, lon });
   const forecast = useGetForecastByCoords({ lat, lon });
   const airQuality = useGetAirQuality({ lat, lon });
+
+  const refresh = useCallback(() => {
+    current.refetch();
+    forecast.refetch();
+    airQuality.refetch();
+  }, [current.refetch, forecast.refetch, airQuality.refetch]);
 
   return {
     current: current.data ?? null,
@@ -19,10 +24,6 @@ export function useWeatherByCoords(coords: Coords | null) {
     loading: current.isLoading || forecast.isLoading || airQuality.isLoading,
     error:
       (current.error ?? forecast.error ?? airQuality.error)?.message ?? null,
-    refresh: () => {
-      current.refetch();
-      forecast.refetch();
-      airQuality.refetch();
-    },
+    refresh,
   };
 }

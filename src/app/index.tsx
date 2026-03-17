@@ -7,11 +7,10 @@ import {
 
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
-import { router } from "expo-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ActivityIndicator, ScrollView, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Box, HourlyItem, StatCard, Text } from "../components";
+import { Box, CitiesDrawer, HourlyItem, StatCard, Text } from "../components";
 import { useCustomCity } from "../context/location.context";
 import { useLocation, useWeatherByCoords } from "../hooks";
 
@@ -36,14 +35,18 @@ function formatDate(dt: number, timezone: number): string {
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const location = useLocation();
-  const { customCity, setCustomCity, setWeatherGradient } = useCustomCity();
+  const { activeCity, setWeatherGradient } = useCustomCity();
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const activeCoords = customCity?.coords ?? location.coords;
-  const weather = useWeatherByCoords(activeCoords);
+  const activeLat =
+    activeCity?.coords.latitude ?? location.coords?.latitude ?? 0;
+  const activeLon =
+    activeCity?.coords.longitude ?? location.coords?.longitude ?? 0;
+  const weather = useWeatherByCoords(activeLat, activeLon);
 
   const current = weather.current;
-  const isLoading = (customCity ? false : location.loading) || weather.loading;
-  const error = (customCity ? null : location.error) ?? weather.error;
+  const isLoading = (activeCity ? false : location.loading) || weather.loading;
+  const error = (activeCity ? null : location.error) ?? weather.error;
 
   const weatherId = current?.current.weather[0]?.id ?? 800;
   const day = current
@@ -54,10 +57,11 @@ export default function HomeScreen() {
       )
     : true;
   const gradient = getWeatherGradient(weatherId, day);
+  const [gradientStart, gradientEnd] = gradient;
 
   useEffect(() => {
-    setWeatherGradient(gradient);
-  }, [gradient[0], gradient[1]]);
+    setWeatherGradient([gradientStart, gradientEnd]);
+  }, [gradientStart, gradientEnd, setWeatherGradient]);
 
   const hourly = current?.hourly.slice(0, 8) ?? [];
   const aqi = weather.airQuality?.list[0];
@@ -129,30 +133,24 @@ export default function HomeScreen() {
         {current && !isLoading && (
           <>
             <Box alignItems="center" marginBottom="s8">
-              <TouchableOpacity
-                onPress={() => router.push("/modal")}
-                style={{ flexDirection: "row", alignItems: "center", gap: 6 }}
+              <Box
+                flexDirection="row"
+                alignItems="center"
+                justifyContent="space-between"
+                style={{ width: "100%", marginBottom: 4 }}
               >
+                <Box style={{ width: 32 }} />
                 <Text preset="paragraphsXL" weight="bold">
-                  {customCity
-                    ? `${customCity.name}, ${customCity.country}`
+                  {activeCity
+                    ? `${activeCity.name}, ${activeCity.country}`
                     : `${location.cityName ?? ""}${location.countryCode ? `, ${location.countryCode}` : ""}`}
                 </Text>
-                <Text preset="paragraphsBig" color="textSecondary">
-                  ▾
-                </Text>
-              </TouchableOpacity>
-
-              {customCity && (
-                <TouchableOpacity
-                  onPress={() => setCustomCity(null)}
-                  style={{ marginTop: 4 }}
-                >
-                  <Text preset="notes" color="textMuted">
-                    📍 Usar minha localização
+                <TouchableOpacity onPress={() => setDrawerOpen(true)}>
+                  <Text preset="displayLarge" color="textSecondary">
+                    ☰
                   </Text>
                 </TouchableOpacity>
-              )}
+              </Box>
 
               <Text
                 preset="notes"
@@ -322,6 +320,13 @@ export default function HomeScreen() {
           </>
         )}
       </ScrollView>
+
+      <CitiesDrawer
+        visible={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        gpsCityName={location.cityName}
+        gpsCountryCode={location.countryCode}
+      />
     </LinearGradient>
   );
 }
