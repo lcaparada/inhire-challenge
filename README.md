@@ -1,4 +1,4 @@
-# Weather App — Inhire Challenge
+# Weather App
 
 Aplicativo mobile de previsão do tempo desenvolvido como parte do processo seletivo.
 
