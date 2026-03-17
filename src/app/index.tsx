@@ -7,9 +7,11 @@ import {
 
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
+import { router } from "expo-router";
 import { ActivityIndicator, ScrollView, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Box, HourlyItem, StatCard, Text } from "../components";
+import { useCustomCity } from "../context/LocationContext";
 import { useLocation, useWeatherByCoords } from "../hooks";
 
 const AQI_INFO: Record<number, { label: string; color: string }> = {
@@ -33,11 +35,14 @@ function formatDate(dt: number, timezone: number): string {
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const location = useLocation();
-  const weather = useWeatherByCoords(location.coords);
+  const { customCity, setCustomCity } = useCustomCity();
+
+  const activeCoords = customCity?.coords ?? location.coords;
+  const weather = useWeatherByCoords(activeCoords);
 
   const current = weather.current;
-  const isLoading = location.loading || weather.loading;
-  const error = location.error ?? weather.error;
+  const isLoading = (customCity ? false : location.loading) || weather.loading;
+  const error = (customCity ? null : location.error) ?? weather.error;
 
   const weatherId = current?.current.weather[0]?.id ?? 800;
   const day = current
@@ -119,10 +124,31 @@ export default function HomeScreen() {
         {current && !isLoading && (
           <>
             <Box alignItems="center" marginBottom="s8">
-              <Text preset="paragraphsXL" weight="bold">
-                {location.cityName}
-                {location.countryCode ? `, ${location.countryCode}` : ""}
-              </Text>
+              <TouchableOpacity
+                onPress={() => router.push("/modal")}
+                style={{ flexDirection: "row", alignItems: "center", gap: 6 }}
+              >
+                <Text preset="paragraphsXL" weight="bold">
+                  {customCity
+                    ? `${customCity.name}, ${customCity.country}`
+                    : `${location.cityName ?? ""}${location.countryCode ? `, ${location.countryCode}` : ""}`}
+                </Text>
+                <Text preset="paragraphsBig" color="textSecondary">
+                  ▾
+                </Text>
+              </TouchableOpacity>
+
+              {customCity && (
+                <TouchableOpacity
+                  onPress={() => setCustomCity(null)}
+                  style={{ marginTop: 4 }}
+                >
+                  <Text preset="notes" color="textMuted">
+                    📍 Usar minha localização
+                  </Text>
+                </TouchableOpacity>
+              )}
+
               <Text
                 preset="notes"
                 color="textSecondary"
@@ -291,6 +317,7 @@ export default function HomeScreen() {
           </>
         )}
       </ScrollView>
+
     </LinearGradient>
   );
 }

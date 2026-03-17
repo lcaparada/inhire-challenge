@@ -7,6 +7,7 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import "react-native-reanimated";
 
+import { LocationProvider } from "@/src/context/LocationContext";
 import { theme } from "@/src/theme";
 
 SplashScreen.preventAutoHideAsync();
@@ -36,10 +37,19 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={theme}>
-        <Stack>
-          <Stack.Screen name="index" options={{ headerShown: false }} />
-        </Stack>
-        <StatusBar style="auto" />
+        <LocationProvider>
+          <Stack>
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="modal"
+              options={{
+                presentation: "modal",
+                headerShown: false,
+              }}
+            />
+          </Stack>
+          <StatusBar style="auto" />
+        </LocationProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

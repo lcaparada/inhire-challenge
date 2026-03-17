@@ -7,6 +7,10 @@ export type WeatherCondition = {
 
 export type CurrentWeather = {
   name: string;
+  coord: {
+    lat: number;
+    lon: number;
+  };
   sys: {
     country: string;
     sunrise: number;
