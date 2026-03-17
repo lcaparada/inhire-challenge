@@ -1,4 +1,5 @@
 import { router } from "expo-router";
+import { LinearGradient } from "expo-linear-gradient";
 import { useState } from "react";
 import { TextInput, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -8,9 +9,10 @@ import { useCustomCity } from "@/src/context/location.context";
 import { weatherService } from "@/src/domain/weather/weather.service";
 import { theme } from "@/src/theme";
 
+
 export default function SearchCityScreen() {
   const insets = useSafeAreaInsets();
-  const { setCustomCity } = useCustomCity();
+  const { setCustomCity, weatherGradient } = useCustomCity();
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -42,9 +44,12 @@ export default function SearchCityScreen() {
   }
 
   return (
+    <LinearGradient
+      colors={weatherGradient}
+      style={{ flex: 1 }}
+    >
     <Box
       flex={1}
-      backgroundColor="appBackground"
       padding="s24"
       gap={"s16"}
       paddingTop={"s32"}
@@ -94,13 +99,11 @@ export default function SearchCityScreen() {
           }}
         />
       </Box>
-
       {error && (
         <Text preset="notes" color="aqiPoor">
           {error}
         </Text>
       )}
-
       <Button
         title="Buscar"
         onPress={handleSearch}
@@ -114,5 +117,6 @@ export default function SearchCityScreen() {
         onPress={handleGPS}
       />
     </Box>
+    </LinearGradient>
   );
 }

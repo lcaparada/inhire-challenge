@@ -12,7 +12,10 @@ type Props = {
 
 function formatHour(dt: number): string {
   const date = new Date(dt * 1000);
-  return date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  return date.toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 export function HourlyItem({ item, isFirst }: Props) {

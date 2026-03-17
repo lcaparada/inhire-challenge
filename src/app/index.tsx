@@ -8,6 +8,7 @@ import {
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
+import { useEffect } from "react";
 import { ActivityIndicator, ScrollView, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Box, HourlyItem, StatCard, Text } from "../components";
@@ -35,7 +36,7 @@ function formatDate(dt: number, timezone: number): string {
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const location = useLocation();
-  const { customCity, setCustomCity } = useCustomCity();
+  const { customCity, setCustomCity, setWeatherGradient } = useCustomCity();
 
   const activeCoords = customCity?.coords ?? location.coords;
   const weather = useWeatherByCoords(activeCoords);
@@ -53,6 +54,10 @@ export default function HomeScreen() {
       )
     : true;
   const gradient = getWeatherGradient(weatherId, day);
+
+  useEffect(() => {
+    setWeatherGradient(gradient);
+  }, [gradient[0], gradient[1]]);
 
   const hourly = current?.hourly.slice(0, 8) ?? [];
   const aqi = weather.airQuality?.list[0];
