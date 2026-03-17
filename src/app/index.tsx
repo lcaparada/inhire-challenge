@@ -1,20 +1,16 @@
+import {
+  getWeatherGradient,
+  isDayTime,
+  theme,
+  weatherIconUrl,
+} from "@/src/theme";
+
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { ActivityIndicator, ScrollView, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
-import { Box } from "@/src/components/Box/Box";
-import { HourlyItem } from "@/src/components/HourlyItem/HourlyItem";
-import { StatCard } from "@/src/components/StatCard/StatCard";
-import { Text } from "@/src/components/Text/Text";
-import { useLocation } from "@/src/hooks/use-location";
-import { useWeatherByCoords } from "@/src/hooks/use-weather";
-import { theme } from "@/src/theme";
-import {
-  getWeatherGradient,
-  isDayTime,
-  weatherIconUrl,
-} from "@/src/theme/weather-gradients";
+import { Box, HourlyItem, StatCard, Text } from "../components";
+import { useLocation, useWeatherByCoords } from "../hooks";
 
 const AQI_INFO: Record<number, { label: string; color: string }> = {
   1: { label: "Boa", color: theme.colors.aqiGood },
@@ -43,14 +39,19 @@ export default function HomeScreen() {
   const isLoading = location.loading || weather.loading;
   const error = location.error ?? weather.error;
 
-  const weatherId = current?.weather[0]?.id ?? 800;
+  const weatherId = current?.current.weather[0]?.id ?? 800;
   const day = current
-    ? isDayTime(current.dt, current.sys.sunrise, current.sys.sunset)
+    ? isDayTime(
+        current.current.dt,
+        current.current.sunrise,
+        current.current.sunset,
+      )
     : true;
   const gradient = getWeatherGradient(weatherId, day);
 
-  const hourly = weather.forecast?.list.slice(0, 8) ?? [];
+  const hourly = current?.hourly.slice(0, 8) ?? [];
   const aqi = weather.airQuality?.list[0];
+  const todayDaily = weather.forecast?.daily[0];
 
   return (
     <LinearGradient colors={gradient} style={{ flex: 1 }}>
@@ -119,21 +120,24 @@ export default function HomeScreen() {
           <>
             <Box alignItems="center" marginBottom="s8">
               <Text preset="paragraphsXL" weight="bold">
-                {current.name}, {current.sys.country}
+                {location.cityName}
+                {location.countryCode ? `, ${location.countryCode}` : ""}
               </Text>
               <Text
                 preset="notes"
                 color="textSecondary"
                 style={{ textTransform: "capitalize", marginTop: 2 }}
               >
-                {formatDate(current.dt, current.timezone)}
+                {formatDate(current.current.dt, current.timezone_offset)}
               </Text>
             </Box>
 
             <Box alignItems="center" paddingVertical="s12">
               <Image
                 source={{
-                  uri: weatherIconUrl(current.weather[0]?.icon ?? "01d"),
+                  uri: weatherIconUrl(
+                    current.current.weather[0]?.icon ?? "01d",
+                  ),
                 }}
                 style={{ width: 110, height: 110 }}
                 contentFit="contain"
@@ -142,22 +146,22 @@ export default function HomeScreen() {
                 weight="regular"
                 style={{ fontSize: 80, lineHeight: 88, fontWeight: "200" }}
               >
-                {Math.round(current.main.temp)}°C
+                {Math.round(current.current.temp)}°C
               </Text>
               <Text
                 preset="default"
                 color="textSecondary"
                 style={{ textTransform: "capitalize", marginTop: 4 }}
               >
-                {current.weather[0]?.description}
+                {current.current.weather[0]?.description}
               </Text>
               <Text
                 preset="paragraphs"
                 color="textMuted"
                 style={{ marginTop: 4 }}
               >
-                Máx {Math.round(current.main.temp_max)}° · Mín{" "}
-                {Math.round(current.main.temp_min)}°
+                Máx {Math.round(todayDaily?.temp.max ?? 0)}° · Mín{" "}
+                {Math.round(todayDaily?.temp.min ?? 0)}°
               </Text>
             </Box>
 
@@ -165,21 +169,20 @@ export default function HomeScreen() {
               <StatCard
                 icon="💧"
                 label="Umidade"
-                value={`${current.main.humidity}%`}
+                value={`${current.current.humidity}%`}
               />
               <StatCard
                 icon="💨"
                 label="Vento"
-                value={`${Math.round(current.wind.speed * 3.6)} km/h`}
+                value={`${Math.round(current.current.wind_speed * 3.6)} km/h`}
               />
               <StatCard
                 icon="🌡️"
                 label="Sensação"
-                value={`${Math.round(current.main.feels_like)}°`}
+                value={`${Math.round(current.current.feels_like)}°`}
               />
             </Box>
 
-            {/* Hourly forecast */}
             {hourly.length > 0 && (
               <Box marginBottom="s16">
                 <Text
@@ -259,7 +262,7 @@ export default function HomeScreen() {
                   🌅 Nascer do sol
                 </Text>
                 <Text preset="titleSmall" weight="semiBold">
-                  {new Date(current.sys.sunrise * 1000).toLocaleTimeString(
+                  {new Date(current.current.sunrise * 1000).toLocaleTimeString(
                     "pt-BR",
                     { hour: "2-digit", minute: "2-digit" },
                   )}
@@ -278,7 +281,7 @@ export default function HomeScreen() {
                   🌇 Pôr do sol
                 </Text>
                 <Text preset="titleSmall" weight="semiBold">
-                  {new Date(current.sys.sunset * 1000).toLocaleTimeString(
+                  {new Date(current.current.sunset * 1000).toLocaleTimeString(
                     "pt-BR",
                     { hour: "2-digit", minute: "2-digit" },
                   )}

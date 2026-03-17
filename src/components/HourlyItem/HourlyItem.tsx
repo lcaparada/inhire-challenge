@@ -1,17 +1,18 @@
 import { Image } from "expo-image";
+
 import { Box } from "@/src/components/Box/Box";
 import { Text } from "@/src/components/Text/Text";
 import { weatherIconUrl } from "@/src/theme/weather-gradients";
-import type { ForecastItem } from "@/src/types/weather";
+import type { OneCallHourly } from "@/src/types/weather";
 
 type Props = {
-  item: ForecastItem;
+  item: OneCallHourly;
   isFirst?: boolean;
 };
 
-function formatHour(dtTxt: string): string {
-  const time = dtTxt.split(" ")[1] ?? "";
-  return time.slice(0, 5);
+function formatHour(dt: number): string {
+  const date = new Date(dt * 1000);
+  return date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 }
 
 export function HourlyItem({ item, isFirst }: Props) {
@@ -29,7 +30,7 @@ export function HourlyItem({ item, isFirst }: Props) {
       style={{ gap: 2, minWidth: 64 }}
     >
       <Text preset="notes" color="textSecondary">
-        {isFirst ? "Agora" : formatHour(item.dt_txt)}
+        {isFirst ? "Agora" : formatHour(item.dt)}
       </Text>
 
       <Image
@@ -39,7 +40,7 @@ export function HourlyItem({ item, isFirst }: Props) {
       />
 
       <Text preset="paragraphs" weight="semiBold">
-        {Math.round(item.main.temp)}°
+        {Math.round(item.temp)}°
       </Text>
 
       {item.pop > 0.05 && (
