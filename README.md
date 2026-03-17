@@ -14,7 +14,11 @@ A ideia foi construir algo próximo de um produto real: visual bem acabado, expe
 
 ## Demonstração
 
+<div align="center">
+
 https://github.com/user-attachments/assets/b2a879cb-1111-4b6f-b007-423cf7750820
+
+</div>
 
 ---
 
