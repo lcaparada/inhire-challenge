@@ -22,3 +22,8 @@ A ideia foi construir algo próximo de um produto real: visual bem acabado, expe
 - **Busca por cidade** — pesquisa qualquer cidade do mundo pelo nome
 - **Múltiplas cidades** — salva cidades favoritas e alterna entre elas via drawer lateral
 - **Localização por GPS** — usa a localização real do dispositivo como padrão
+
+## App em funcionamento
+
+https://github.com/user-attachments/assets/b2a879cb-1111-4b6f-b007-423cf7750820
+
