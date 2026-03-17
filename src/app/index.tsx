@@ -149,7 +149,6 @@ export default function HomeScreen() {
 
         {cw && oneCall && !isLoading && (
           <>
-            {/* Header */}
             <Box alignItems="center" marginBottom="s8">
               <Box
                 flexDirection="row"
@@ -178,7 +177,6 @@ export default function HomeScreen() {
               </Text>
             </Box>
 
-            {/* Main weather */}
             <Box alignItems="center" paddingVertical="s12">
               <Image
                 source={{ uri: weatherIconUrl(cw.weather[0]?.icon ?? "01d") }}
@@ -208,13 +206,8 @@ export default function HomeScreen() {
               </Text>
             </Box>
 
-            {/* Stats row 1 */}
             <Box flexDirection="row" marginBottom="s10" style={{ gap: 10 }}>
-              <StatCard
-                icon="💧"
-                label="Umidade"
-                value={`${cw.humidity}%`}
-              />
+              <StatCard icon="💧" label="Umidade" value={`${cw.humidity}%`} />
               <StatCard
                 icon="💨"
                 label="Vento"
@@ -227,7 +220,6 @@ export default function HomeScreen() {
               />
             </Box>
 
-            {/* Stats row 2 */}
             <Box flexDirection="row" marginBottom="s16" style={{ gap: 10 }}>
               <StatCard
                 icon="☀️"
@@ -246,7 +238,6 @@ export default function HomeScreen() {
               />
             </Box>
 
-            {/* Hourly forecast */}
             {hourly.length > 0 && (
               <Box marginBottom="s16">
                 <Text
@@ -273,7 +264,6 @@ export default function HomeScreen() {
               </Box>
             )}
 
-            {/* 7-day forecast */}
             {forecastDays.length > 0 && (
               <Box
                 backgroundColor="cardBackground"
@@ -310,7 +300,6 @@ export default function HomeScreen() {
               </Box>
             )}
 
-            {/* Air quality */}
             {aqi && (
               <Box
                 backgroundColor="cardBackground"
@@ -350,7 +339,6 @@ export default function HomeScreen() {
               </Box>
             )}
 
-            {/* Sunrise / Sunset */}
             <Box flexDirection="row" style={{ gap: 10 }}>
               <Box
                 flex={1}
